@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>ALVO // DEEP TECH FAPEAM 012/2026</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Black+Ops+One&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050202;
+    --red:#ff2a2a;
+    --red-glow:#ff4040;
+    --red-dim:#7a0e0e;
+    --red-blood:#b80808;
+    --ink:#0a0303;
+    --bone:#f1e6e6;
+    --grid: rgba(255,42,42,0.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--bone);font-family:'JetBrains Mono',monospace;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,42,42,0.10), transparent 55%),
+      radial-gradient(circle at 80% 90%, rgba(255,42,42,0.05), transparent 50%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,40,40,0.04) 0 1px, transparent 1px 3px),
+      radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.85) 100%);
+    mix-blend-mode:screen;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:51;
+    background: radial-gradient(circle at 50% 50%, transparent 55%, rgba(0,0,0,0.9) 100%);
+  }
+  .grain{
+    position:fixed;inset:0;pointer-events:none;z-index:60;opacity:0.18;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0.7 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    animation: grain 1.6s steps(6) infinite;
+  }
+  @keyframes grain{
+    0%{transform:translate(0,0)}20%{transform:translate(-2%,1%)}40%{transform:translate(1%,-2%)}60%{transform:translate(-1%,2%)}80%{transform:translate(2%,1%)}100%{transform:translate(0,0)}
+  }
+
+  .hud{
+    position:fixed;top:0;left:0;right:0;z-index:40;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 16px;
+    font-size:11px;letter-spacing:0.2em;color:var(--red);
+    text-shadow:0 0 6px var(--red);
+    background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0));
+    border-bottom:1px solid rgba(255,42,42,0.2);
+  }
+  .hud .left, .hud .right{display:flex;gap:18px;align-items:center}
+  .hud .dot{width:8px;height:8px;background:var(--red);box-shadow:0 0 8px var(--red);animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:0.2}}
+  .hud .bar{width:80px;height:6px;border:1px solid var(--red);position:relative;overflow:hidden}
+  .hud .bar::after{content:"";position:absolute;inset:1px;background:linear-gradient(90deg,var(--red),transparent);width:60%}
+
+  .hud-bottom{
+    position:fixed;bottom:0;left:0;right:0;z-index:40;
+    display:flex;justify-content:space-between;
+    padding:8px 16px;font-size:10px;letter-spacing:0.25em;color:var(--red-glow);
+    background: linear-gradient(0deg, rgba(0,0,0,0.9), rgba(0,0,0,0));
+    border-top:1px solid rgba(255,42,42,0.2);
+  }
+
+  .corner{position:fixed;width:24px;height:24px;border-color:var(--red);z-index:39;pointer-events:none;filter:drop-shadow(0 0 4px var(--red))}
+  .corner.tl{top:36px;left:16px;border-top:2px solid;border-left:2px solid}
+  .corner.tr{top:36px;right:16px;border-top:2px solid;border-right:2px solid}
+  .corner.bl{bottom:36px;left:16px;border-bottom:2px solid;border-left:2px solid}
+  .corner.br{bottom:36px;right:16px;border-bottom:2px solid;border-right:2px solid}
+
+  main{
+    max-width:1240px;margin:0 auto;padding:80px 32px 80px;
+    position:relative;z-index:10;
+  }
+
+  header.hero{
+    text-align:center;margin-bottom:48px;position:relative;
+  }
+  header.hero .eyebrow{
+    font-size:11px;letter-spacing:0.6em;color:var(--red);text-shadow:0 0 8px var(--red);
+    margin-bottom:14px;
+  }
+  header.hero h1{
+    font-family:'Black Ops One', 'JetBrains Mono', monospace;
+    font-size:clamp(40px, 7vw, 84px);
+    margin:0;line-height:0.9;
+    color:var(--red);
+    text-shadow:
+      0 0 4px var(--red),
+      0 0 18px var(--red),
+      0 0 40px rgba(255,42,42,0.6);
+    letter-spacing:0.04em;
+  }
+  header.hero h1 .crack{
+    display:inline-block;position:relative;
+  }
+  header.hero h1 .crack::after{
+    content:"";position:absolute;left:-4%;right:-4%;top:55%;height:2px;
+    background:linear-gradient(90deg, transparent, var(--red), transparent);
+    transform:skewY(-1.5deg);opacity:0.7;
+  }
+  header.hero .sub{
+    margin-top:14px;font-size:12px;letter-spacing:0.35em;color:#bda0a0;
+  }
+  header.hero .crosshair{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:340px;height:340px;pointer-events:none;opacity:0.35;
+    background:
+      radial-gradient(circle, transparent 78px, var(--red) 79px, var(--red) 80px, transparent 81px),
+      radial-gradient(circle, transparent 120px, rgba(255,42,42,0.4) 121px, rgba(255,42,42,0.4) 122px, transparent 123px),
+      linear-gradient(90deg, transparent calc(50% - 1px), var(--red) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+      linear-gradient(0deg, transparent calc(50% - 1px), var(--red) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+    z-index:-1;
+    filter: drop-shadow(0 0 6px var(--red));
+    animation: pulse 3.5s ease-in-out infinite;
+  }
+  @keyframes pulse{50%{opacity:0.5;transform:translate(-50%,-50%) scale(1.06)}}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4, 1fr);gap:1px;
+    background:rgba(255,42,42,0.2);border:1px solid rgba(255,42,42,0.25);
+    margin-bottom:48px;
+  }
+  .stats .cell{background:#070303;padding:14px 18px;}
+  .stats .lbl{font-size:9px;letter-spacing:0.3em;color:#b48484;margin-bottom:6px}
+  .stats .val{font-family:'Black Ops One',monospace;font-size:22px;color:var(--red);text-shadow:0 0 8px var(--red)}
+
+  .targets{
+    display:grid;grid-template-columns:repeat(3, 1fr);gap:24px;
+  }
+  @media (max-width:980px){.targets{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+
+  .target{
+    position:relative;
+    background:
+      linear-gradient(180deg, rgba(255,42,42,0.04), transparent 30%),
+      #060202;
+    border:1px solid rgba(255,42,42,0.3);
+    padding:20px 20px 24px;
+    cursor:pointer;
+    transition: all .25s ease;
+    overflow:hidden;
+  }
+  .target::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(180deg, transparent 0, transparent 49%, rgba(255,42,42,0.12) 50%, transparent 51%);
+    background-size:100% 4px;
+    opacity:0.35;mix-blend-mode:screen;
+  }
+  .target::after{
+    content:"";position:absolute;inset:6px;border:1px dashed rgba(255,42,42,0.15);pointer-events:none;
+  }
+  .target:hover{
+    border-color:var(--red);
+    box-shadow: 0 0 0 1px var(--red), 0 0 40px rgba(255,42,42,0.35), inset 0 0 60px rgba(255,42,42,0.1);
+    transform: translateY(-2px);
+  }
+  .target.selected{
+    border-color:var(--red);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,42,42,0.25), transparent 60%),
+      #0a0303;
+    box-shadow: 0 0 0 1px var(--red), 0 0 60px rgba(255,42,42,0.55);
+  }
+  .target.selected::after{ border-color: var(--red); }
+
+  .target .id{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:10px;letter-spacing:0.3em;color:var(--red);
+    text-shadow:0 0 6px var(--red);margin-bottom:14px;
+  }
+  .target .id .tag{display:flex;align-items:center;gap:8px}
+  .target .id .tag svg{width:12px;height:12px;fill:var(--red)}
+
+  .target .codeword{
+    font-family:'Black Ops One',monospace;
+    font-size:11px;letter-spacing:0.25em;color:#cf3030;
+    margin-bottom:8px;
+  }
+  .target h2{
+    font-family:'Black Ops One', monospace;
+    font-size:22px;line-height:1.1;margin:0 0 16px;
+    color:var(--bone);
+    text-shadow:0 0 6px rgba(255,255,255,0.05);
+    min-height:78px;
+  }
+  .target .frag{
+    border-top:1px solid rgba(255,42,42,0.2);
+    padding-top:12px;margin-top:12px;
+    display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;
+    font-size:10px;
+  }
+  .target .frag div{display:flex;flex-direction:column;gap:2px}
+  .target .frag .k{color:#7a5a5a;letter-spacing:0.22em;font-size:9px}
+  .target .frag .v{color:var(--bone);letter-spacing:0.05em;font-size:11px;font-weight:500}
+
+  .target .brief{
+    font-size:11.5px;line-height:1.55;color:#c8b9b9;
+    margin:14px 0 14px;letter-spacing:0.02em;
+    border-left:2px solid var(--red);padding:4px 0 4px 10px;
+    background:linear-gradient(90deg, rgba(255,42,42,0.08), transparent 80%);
+  }
+
+  .target .meter{
+    margin-top:14px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .meter .row{display:flex;justify-content:space-between;font-size:9px;letter-spacing:0.2em;color:#9b6a6a}
+  .meter .bar{height:8px;border:1px solid rgba(255,42,42,0.35);position:relative;background:#1a0606;overflow:hidden}
+  .meter .bar .fill{
+    position:absolute;left:0;top:0;bottom:0;
+    background:linear-gradient(90deg, var(--red-blood), var(--red));
+    box-shadow:0 0 12px var(--red);
+    transition: width .6s cubic-bezier(.2,.8,.2,1);
+  }
+  .meter .bar::after{
+    content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg, transparent 0 6px, rgba(0,0,0,0.4) 6px 7px);
+  }
+  .meter .pct{font-family:'Black Ops One',monospace;font-size:20px;color:var(--red);text-shadow:0 0 8px var(--red)}
+
+  .vote-btn{
+    margin-top:18px;width:100%;
+    background:transparent;border:1px solid var(--red);color:var(--red);
+    font-family:'Black Ops One', monospace;letter-spacing:0.3em;font-size:13px;
+    padding:12px 0;cursor:pointer;
+    position:relative;
+    transition: all .2s;
+    text-shadow:0 0 6px var(--red);
+  }
+  .vote-btn::before, .vote-btn::after{
+    content:"";position:absolute;width:8px;height:8px;border-color:var(--red);
+  }
+  .vote-btn::before{top:-1px;left:-1px;border-top:2px solid;border-left:2px solid}
+  .vote-btn::after{bottom:-1px;right:-1px;border-bottom:2px solid;border-right:2px solid}
+  .vote-btn:hover{
+    background:var(--red);color:#000;text-shadow:none;
+    box-shadow:0 0 30px var(--red);
+  }
+  .target.selected .vote-btn{
+    background:var(--red);color:#000;text-shadow:none;
+    box-shadow:0 0 30px var(--red);
+  }
+
+  .reticle{
+    position:absolute;top:14px;right:14px;width:28px;height:28px;
+    border:1px solid var(--red);border-radius:50%;
+    box-shadow:0 0 8px var(--red), inset 0 0 6px var(--red);
+  }
+  .reticle::before, .reticle::after{
+    content:"";position:absolute;background:var(--red);box-shadow:0 0 4px var(--red);
+  }
+  .reticle::before{left:50%;top:-4px;bottom:-4px;width:1px;transform:translateX(-50%)}
+  .reticle::after{top:50%;left:-4px;right:-4px;height:1px;transform:translateY(-50%)}
+
+  .cmdbar{
+    margin-top:40px;
+    border:1px solid rgba(255,42,42,0.35);
+    padding:18px 22px;
+    display:flex;justify-content:space-between;align-items:center;gap:24px;
+    background:
+      linear-gradient(90deg, rgba(255,42,42,0.06), transparent 60%),
+      #060202;
+    flex-wrap:wrap;
+  }
+  .cmdbar .total{font-size:11px;letter-spacing:0.3em;color:#a87575;}
+  .cmdbar .total b{font-family:'Black Ops One',monospace;color:var(--red);font-size:24px;text-shadow:0 0 8px var(--red);margin-left:10px;font-weight:400}
+  .cmdbar .actions{display:flex;gap:12px;flex-wrap:wrap}
+  .cmdbar button{
+    background:transparent;color:#c8b9b9;border:1px solid rgba(255,42,42,0.4);
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;
+    padding:10px 16px;cursor:pointer;
+  }
+  .cmdbar button:hover{border-color:var(--red);color:var(--red);text-shadow:0 0 6px var(--red)}
+  .cmdbar button.fire{
+    background:var(--red);color:#000;border-color:var(--red);font-family:'Black Ops One',monospace;
+    box-shadow:0 0 24px rgba(255,42,42,0.6);
+  }
+  .cmdbar button.fire:hover{background:#fff;border-color:#fff;color:#000;box-shadow:0 0 30px #fff}
+  .cmdbar button.fire:disabled{opacity:0.3;cursor:not-allowed;box-shadow:none}
+
+  .asciiSig{
+    margin-top:24px;font-size:10px;color:#5a3838;letter-spacing:0.18em;text-align:center;
+    white-space:pre;line-height:1.3;
+  }
+
+  .modal{
+    position:fixed;inset:0;z-index:80;background:rgba(0,0,0,0.86);
+    display:flex;align-items:center;justify-content:center;padding:32px;
+    backdrop-filter:blur(2px);
+  }
+  .modal .box{
+    border:1px solid var(--red);background:#0a0303;padding:36px 40px;max-width:520px;width:100%;
+    box-shadow:0 0 60px var(--red), inset 0 0 40px rgba(255,42,42,0.15);
+    text-align:center;position:relative;
+  }
+  .modal .box::before{
+    content:"";position:absolute;inset:8px;border:1px dashed rgba(255,42,42,0.3);
+  }
+  .modal .box .stamp{
+    font-family:'Black Ops One',monospace;color:var(--red);font-size:38px;
+    text-shadow:0 0 14px var(--red);letter-spacing:0.1em;
+    margin-bottom:8px;
+  }
+  .modal .box .sub2{color:#c8b9b9;font-size:12px;letter-spacing:0.25em;margin-bottom:18px}
+  .modal .box .name{
+    font-family:'Black Ops One',monospace;color:var(--bone);font-size:16px;letter-spacing:0.1em;
+    margin:14px 0;line-height:1.3;
+  }
+  .modal .box .wpp-btn{
+    margin-top:18px;
+    display:inline-flex;align-items:center;gap:10px;
+    background:#25D366;color:#000;border:0;
+    padding:14px 28px;
+    font-family:'Black Ops One',monospace;letter-spacing:0.25em;cursor:pointer;font-size:13px;
+    text-decoration:none;
+    box-shadow:0 0 24px rgba(37,211,102,0.5);
+    transition:all .2s;
+  }
+  .modal .box .wpp-btn:hover{background:#fff;box-shadow:0 0 32px #fff}
+  .modal .box .wpp-icon{width:22px;height:22px;flex-shrink:0}
+  .modal .box .close{
+    margin-top:12px;display:block;background:transparent;color:#7a5a5a;border:1px solid rgba(255,42,42,0.2);
+    padding:8px 22px;font-family:'JetBrains Mono',monospace;letter-spacing:0.25em;cursor:pointer;font-size:11px;
+    width:100%;
+  }
+  .modal .box .close:hover{border-color:var(--red);color:var(--red)}
+
+  .meta-row{display:flex;justify-content:space-between;font-size:10px;color:#7a5a5a;letter-spacing:0.2em;margin-bottom:10px}
+
+  @keyframes glitch{
+    0%,100%{transform:translate(0,0)}
+    20%{transform:translate(-1px,1px)}
+    40%{transform:translate(1px,-1px)}
+    60%{transform:translate(-1px,-1px)}
+    80%{transform:translate(1px,1px)}
+  }
+  .target.selected h2{animation: glitch 0.6s infinite; color:var(--red); text-shadow:0 0 10px var(--red)}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="hud">
+  <div class="left">
+    <span class="dot"></span>
+    <span>SIG://FAPEAM-012-2026</span>
+    <span style="opacity:.6">CH.07</span>
+  </div>
+  <div class="left" style="gap:14px">
+    <span>SINAL</span><div class="bar"></div>
+    <span>REC</span><div class="bar"></div>
+  </div>
+  <div class="right">
+    <span id="clock">--:--:--</span>
+    <span style="opacity:.6">MANAUS / -3:00</span>
+  </div>
+</div>
+
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<main>
+  <header class="hero">
+    <div class="crosshair"></div>
+    <div class="eyebrow">// ENQUETE CLASSIFICADA · ALVO PRIMÁRIO</div>
+    <h1>SELECIONE <span class="crack">O ALVO</span></h1>
+    <div class="sub">DEEP TECH · FAPEAM 012/2026 · R$ 125.000 POR PROPOSTA · DEADLINE 19/03/2026 17:00</div>
+  </header>
+
+  <section class="stats">
+    <div class="cell"><div class="lbl">PROPOSTAS</div><div class="val">03</div></div>
+    <div class="cell"><div class="lbl">TRL INICIAL</div><div class="val">3</div></div>
+    <div class="cell"><div class="lbl">DURAÇÃO</div><div class="val">18 MESES</div></div>
+    <div class="cell"><div class="lbl">DEADLINE</div><div class="val">19.03.26</div></div>
+  </section>
+
+  <section class="targets" id="targets"></section>
+
+  <div class="cmdbar">
+    <div class="total">VOTOS REGISTRADOS<b id="totalVotes">000</b></div>
+    <div class="actions">
+      <button id="resetBtn">⟲ RESET</button>
+      <button id="fireBtn" class="fire" disabled>▣ CONFIRMAR ALVO</button>
+    </div>
+  </div>
+
+  <div class="asciiSig">
+─── ─ ─  ─   ─    SIGFAPEAM // CRIPTOGRAFADO // NÃO REENCAMINHAR    ─    ─   ─ ─  ───
+  </div>
+</main>
+
+<div class="hud-bottom">
+  <span>STATUS: AGUARDANDO ENTRADA</span>
+  <span>OP. <span id="opcode">A7-CRX-22</span></span>
+  <span>FAPEAM://012-2026</span>
+</div>
+
+<script>
+const WPP_NUMBER = '5592981969221';
+
+const PROPOSTAS = [
+  {
+    id:'A-01',
+    codeword:'CORRENTE LÍQUIDA',
+    linha:'LINHA 1 · DIGITAL',
+    titulo:'MONITORAMENTO IoT + IA DA QUALIDADE DA ÁGUA EM RIOS AMAZÔNICOS',
+    brief:'Plataforma embarcada de baixo custo com sensores IoT e ML para turbidez, pH, O₂ dissolvido e metais pesados em tempo real.',
+    ict:'INPA / UFAM',
+    bolsa:'AT-II',
+    capital:'R$ 55K',
+    custeio:'R$ 45K',
+  },
+  {
+    id:'A-02',
+    codeword:'RAIZ MICELAR',
+    linha:'LINHA 3 · AGRONEGÓCIO',
+    titulo:'BIOINSUMO DE FUNGOS MICORRÍZICOS NATIVOS PARA AÇAÍ E CUPUAÇU',
+    brief:'Isolar, caracterizar e formular bioinsumos a partir de fungos micorrízicos arbusculares endêmicos do bioma amazônico.',
+    ict:'EMBRAPA / INPA',
+    bolsa:'BIPDT-III',
+    capital:'R$ 60K',
+    custeio:'R$ 45K',
+  },
+  {
+    id:'A-03',
+    codeword:'FÓTON RIBEIRINHO',
+    linha:'LINHA 2 · ENERGIA',
+    titulo:'GESTÃO ENERGÉTICA COM IA PARA MICRORREDES SOLARES RIBEIRINHAS',
+    brief:'Controlador embarcado + RL para microrredes fotovoltaicas off-grid em comunidades ribeirinhas isoladas do Amazonas.',
+    ict:'UEA / UFAM',
+    bolsa:'AT-I',
+    capital:'R$ 65K',
+    custeio:'R$ 40K',
+  },
+];
+
+let votes = [12, 9, 14];
+let selected = null;
+
+const $targets = document.getElementById('targets');
+const $total   = document.getElementById('totalVotes');
+const $fire    = document.getElementById('fireBtn');
+const $reset   = document.getElementById('resetBtn');
+
+function render(){
+  $targets.innerHTML = '';
+  const sum = votes.reduce((a,b)=>a+b,0) || 1;
+  PROPOSTAS.forEach((p,i)=>{
+    const pct = Math.round((votes[i]/sum)*100);
+    const sel = selected === i ? 'selected' : '';
+    const card = document.createElement('div');
+    card.className = 'target ' + sel;
+    card.innerHTML = `
+      <div class="reticle"></div>
+      <div class="id">
+        <span class="tag">
+          <svg viewBox="0 0 12 12"><rect x="0" y="0" width="3" height="3"/><rect x="9" y="0" width="3" height="3"/><rect x="0" y="9" width="3" height="3"/><rect x="9" y="9" width="3" height="3"/></svg>
+          ALVO ${p.id}
+        </span>
+        <span style="opacity:.6">${p.linha}</span>
+      </div>
+      <div class="codeword">CODE ▸ "${p.codeword}"</div>
+      <h2>${p.titulo}</h2>
+      <div class="brief">${p.brief}</div>
+      <div class="frag">
+        <div><span class="k">ICT</span><span class="v">${p.ict}</span></div>
+        <div><span class="k">BOLSA</span><span class="v">${p.bolsa}</span></div>
+        <div><span class="k">CAPITAL</span><span class="v">${p.capital}</span></div>
+        <div><span class="k">CUSTEIO</span><span class="v">${p.custeio}</span></div>
+      </div>
+      <div class="meter">
+        <div class="row"><span>SUPORTE / SIGNAL</span><span>${votes[i]} VOTOS</span></div>
+        <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
+        <div class="row" style="align-items:center;justify-content:space-between">
+          <span style="opacity:.7">OPS_REGISTRADAS</span>
+          <span class="pct">${String(pct).padStart(2,'0')}%</span>
+        </div>
+      </div>
+      <button class="vote-btn" data-i="${i}">${sel ? '◉ ALVO BLOQUEADO' : '◯ MIRAR ALVO'}</button>
+    `;
+    card.addEventListener('click', (e)=>{ if(e.target.tagName==='BUTTON') return; pick(i); });
+    card.querySelector('button').addEventListener('click', (e)=>{ e.stopPropagation(); pick(i); });
+    $targets.appendChild(card);
+  });
+  $total.textContent = String(votes.reduce((a,b)=>a+b,0)).padStart(3,'0');
+  $fire.disabled = selected === null;
+}
+
+function pick(i){
+  selected = selected === i ? null : i;
+  render();
+}
+
+$fire.addEventListener('click', ()=>{
+  if(selected === null) return;
+  const choice = PROPOSTAS[selected];
+  votes[selected] += 1;
+  const idx = selected;
+  selected = null;
+  render();
+  showConfirm(choice, idx);
+});
+
+$reset.addEventListener('click', ()=>{
+  votes = [0, 0, 0];
+  selected = null;
+  render();
+});
+
+function buildWppLink(choice){
+  const msg =
+    `🎯 *Meu voto — DEEP TECH FAPEAM 012/2026*\n\n` +
+    `*Proposta escolhida:* ${choice.id} — "${choice.codeword}"\n` +
+    `*Título:* ${choice.titulo}\n` +
+    `*Linha:* ${choice.linha}\n` +
+    `*ICT Parceira:* ${choice.ict}\n` +
+    `*Capital:* ${choice.capital} | *Custeio:* ${choice.custeio}\n\n` +
+    `📋 ${choice.brief}`;
+  return `https://wa.me/${WPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+}
+
+function showConfirm(choice){
+  const m = document.createElement('div');
+  m.className = 'modal';
+  m.innerHTML = `
+    <div class="box">
+      <div class="stamp">✚ TIRO CONFIRMADO</div>
+      <div class="sub2">VOTO REGISTRADO · ENVIE VIA WHATSAPP</div>
+      <div class="meta-row"><span>ALVO ${choice.id}</span><span>CODE "${choice.codeword}"</span></div>
+      <div class="name">${choice.titulo}</div>
+      <div class="meta-row"><span>${choice.linha}</span><span>${choice.ict}</span></div>
+      <a class="wpp-btn" href="${buildWppLink(choice)}" target="_blank" rel="noopener">
+        <svg class="wpp-icon" viewBox="0 0 32 32" fill="currentColor">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.738 5.472 2.027 7.775L0 32l8.484-2.004A15.94 15.94 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.77-1.85l-.485-.288-5.034 1.189 1.21-4.905-.317-.503A13.26 13.26 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.77c-.398-.199-2.355-1.162-2.72-1.295-.366-.133-.633-.199-.9.2-.266.398-1.031 1.295-1.264 1.561-.232.267-.466.3-.864.1-2.355-1.178-3.9-2.101-5.445-4.764-.412-.707.412-.657 1.178-2.185.133-.266.066-.499-.033-.698-.1-.199-.9-2.167-1.232-2.965-.325-.78-.657-.672-.9-.684l-.765-.013c-.266 0-.698.1-1.064.499-.366.398-1.396 1.362-1.396 3.323 0 1.96 1.43 3.854 1.628 4.121.2.266 2.814 4.296 6.82 6.028 2.534 1.094 3.527 1.186 4.794 1 .771-.116 2.355-.964 2.688-1.895.332-.93.332-1.727.232-1.895-.099-.166-.365-.266-.764-.465z"/>
+        </svg>
+        ENVIAR VOTO VIA WHATSAPP
+      </a>
+      <button class="close">FECHAR CANAL</button>
+    </div>
+  `;
+  document.body.appendChild(m);
+  m.querySelector('.close').addEventListener('click', ()=>m.remove());
+  m.addEventListener('click', (e)=>{ if(e.target===m) m.remove(); });
+}
+
+function tick(){
+  const d = new Date();
+  const z = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent = z(d.getHours())+':'+z(d.getMinutes())+':'+z(d.getSeconds());
+}
+tick(); setInterval(tick, 1000);
+
+setInterval(()=>{
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for(let i=0;i<3;i++) s += c[Math.floor(Math.random()*c.length)];
+  s += '-';
+  for(let i=0;i<3;i++) s += c[Math.floor(Math.random()*c.length)];
+  s += '-' + String(Math.floor(Math.random()*90)+10);
+  document.getElementById('opcode').textContent = s;
+}, 1800);
+
+render();
+</script>
+</body>
+</html>
